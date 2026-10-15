@@ -1,0 +1,935 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>30周ラン記録</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Zen+Kaku+Gothic+New:wght@500;700;900&display=swap">
+<style>
+/* Layout: one-screen phone app. Top bar, scrolling view, bottom tabs. The run screen is a fixed tile grid (one tile per runner) so positions never move. */
+:root{
+  --bg:#EEF1F4; --surface:#FFFFFF; --ink:#0F1B2D; --sub:#4A5668; --line:#D5DBE3; --track:#E3E8EF;
+  --accent:#1747D1; --accent-soft:#DCE6FF; --on-accent:#FFFFFF;
+  --warn:#B4380B; --warn-soft:#FFE4D1;
+  --inv:#0F1B2D; --inv-ink:#FFFFFF; --inv-sub:#C9D4E5;
+  --num:'Barlow Condensed','Arial Narrow',sans-serif;
+  --jp:'Zen Kaku Gothic New','Hiragino Sans','Yu Gothic',Meiryo,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0A111E; --surface:#141D2D; --ink:#EDF1F7; --sub:#A9B5C8; --line:#2B3750; --track:#243049;
+    --accent:#8CABFF; --accent-soft:#1B2C5C; --on-accent:#0A111E;
+    --warn:#FFA06B; --warn-soft:#4B2613;
+    --inv:#EDF1F7; --inv-ink:#0A111E; --inv-sub:#4A5668;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0A111E; --surface:#141D2D; --ink:#EDF1F7; --sub:#A9B5C8; --line:#2B3750; --track:#243049;
+  --accent:#8CABFF; --accent-soft:#1B2C5C; --on-accent:#0A111E;
+  --warn:#FFA06B; --warn-soft:#4B2613;
+  --inv:#EDF1F7; --inv-ink:#0A111E; --inv-sub:#4A5668;
+  color-scheme:dark;
+}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--jp);font-size:15px;line-height:1.45;-webkit-text-size-adjust:100%}
+*{box-sizing:border-box}
+button,input{font-family:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+h1{margin:0;font-size:24px;font-weight:900;line-height:1.2;text-wrap:balance}
+h2{margin:0;font-size:17px;font-weight:900}
+p{margin:0}
+
+#app{height:100%;max-width:520px;margin:0 auto;display:flex;flex-direction:column}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;padding-block:10px;padding-inline:16px;background:var(--surface);border-bottom:1px solid var(--line)}
+.brand{font-weight:900;font-size:15px}
+.sync{font-size:12px;font-weight:700;color:var(--sub)}
+.view{flex:1;min-height:0;overflow-y:auto;padding-block:14px;padding-inline:16px;display:flex;flex-direction:column;gap:12px}
+.tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));background:var(--surface);border-top:1px solid var(--line)}
+.tabs button{height:54px;border:0;background:none;font-size:14px;font-weight:700;color:var(--sub);border-top:3px solid transparent}
+.tabs button[aria-current="page"]{color:var(--ink);border-top-color:var(--ink);font-weight:900}
+
+.eyebrow{font-size:12px;font-weight:700;color:var(--sub)}
+.pagehead{display:flex;flex-direction:column;gap:2px}
+.card{background:var(--surface);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.card.rows{padding-block:2px;gap:0}
+.row{display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:56px;border-bottom:1px solid var(--track)}
+.row:last-child{border-bottom:0}
+.row .t{display:flex;flex-direction:column;gap:1px;font-weight:700;min-width:0}
+.row .t small{font-size:12px;font-weight:500;color:var(--sub)}
+.label{font-size:13px;font-weight:700;color:var(--sub)}
+.label-row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.label-row b{font-size:15px;font-weight:900;color:var(--ink)}
+.hint{font-size:12px;font-weight:500;color:var(--sub)}
+.link{height:44px;padding:0 4px;border:0;background:none;color:var(--accent);font-size:14px;font-weight:700}
+
+.stepper{display:flex;align-items:center;gap:8px}
+.stepper button{width:44px;height:44px;border-radius:10px;border:1px solid var(--line);background:var(--surface);font-size:22px;font-weight:700;line-height:1}
+.stepper output{min-width:44px;text-align:center;font:700 32px/1 var(--num)}
+.stepper output small{font:700 12px var(--jp);color:var(--sub)}
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:8px}
+.seg button{min-height:48px;border-radius:10px;border:2px solid var(--line);background:var(--surface);font-size:15px;font-weight:900;padding:4px 6px}
+.seg button[aria-pressed="true"]{background:var(--inv);border-color:var(--inv);color:var(--inv-ink)}
+.seg.num button{font:700 22px var(--num)}
+.switch{width:64px;height:44px;border-radius:22px;border:2px solid var(--line);background:var(--surface);font-size:13px;font-weight:900}
+.switch[aria-pressed="true"]{background:var(--inv);border-color:var(--inv);color:var(--inv-ink)}
+
+.chips{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.chip{display:flex;align-items:center;gap:6px;height:46px;padding:0 8px;min-width:0;border-radius:10px;border:2px solid var(--ink);background:var(--surface)}
+.chip b{font:700 24px/1 var(--num)}
+.chip span{font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chip[aria-pressed="false"]{border:2px dashed var(--line);color:var(--sub);background:transparent}
+
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:6px 14px;border-radius:12px;border:1px solid var(--line);background:var(--surface);font-size:14px;font-weight:900;text-align:center}
+.btn.strong{border:2px solid var(--ink)}
+.btn.danger{color:var(--warn)}
+.primary{display:flex;align-items:center;justify-content:center;width:100%;min-height:60px;border:0;border-radius:14px;background:var(--accent);color:var(--on-accent);font-size:20px;font-weight:900}
+.primary:disabled{background:var(--track);color:var(--sub);cursor:not-allowed}
+.cta{position:sticky;bottom:-14px;margin-top:auto;padding-block:10px 14px;background:var(--bg)}
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.empty{padding:28px 16px;text-align:center;color:var(--sub);font-weight:700;border:2px dashed var(--line);border-radius:12px}
+.empty b{display:block;color:var(--ink);font-size:16px;font-weight:900;margin-bottom:4px}
+
+/* tables */
+.tbl{background:var(--surface);border-radius:12px;padding:4px 12px}
+.tr{display:grid;column-gap:6px;align-items:center;min-height:40px;border-bottom:1px solid var(--track);font-variant-numeric:tabular-nums;width:100%;background:none;border-left:0;border-right:0;border-top:0;text-align:left;padding:0}
+.tr:last-child{border-bottom:0}
+.tr.head{min-height:30px;font-size:12px;font-weight:700;color:var(--sub);border-bottom:1px solid var(--line)}
+.tr .r{text-align:right}
+.n{font-family:var(--num);font-weight:600;font-size:20px}
+.n.b{font-weight:700;font-size:22px}
+.n.s{font-weight:500;font-size:18px;color:var(--sub)}
+.who{display:flex;align-items:baseline;gap:6px;min-width:0}
+.who i{font:600 20px var(--num);color:var(--sub);min-width:20px;font-style:normal}
+.who span{font-size:15px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.who .tag{font-size:11px;overflow:visible;flex-shrink:0;align-self:center}
+.up{color:var(--warn)} .down{color:var(--accent)}
+.tag{display:inline-block;padding:1px 6px;border-radius:6px;background:var(--accent);color:var(--on-accent);font-size:11px;font-weight:900;white-space:nowrap}
+.cols-res{grid-template-columns:24px minmax(0,1fr) 52px 52px 58px}
+.cols-plan{grid-template-columns:22px minmax(0,1fr) 56px 64px}
+.cols-lap{grid-template-columns:40px 1fr 1fr 60px}
+.cols-ses{grid-template-columns:minmax(0,1fr) auto}
+.cols-ply{grid-template-columns:minmax(0,1fr) 44px 56px 56px}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.stats.two-col{grid-template-columns:repeat(2,minmax(0,1fr))}
+.stat{background:var(--surface);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.stat span{font-size:12px;font-weight:700;color:var(--sub)}
+.stat b{font:700 28px/1 var(--num)}
+.stat b small{font:700 12px var(--jp)}
+.sheet .stat{background:var(--bg)}
+
+/* run screen */
+.view.run{padding-block:0;padding-inline:0;gap:0;overflow:hidden}
+.run-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;padding-block:10px 8px;padding-inline:16px;background:var(--surface);border-bottom:1px solid var(--line)}
+.clock{font:700 50px/0.9 var(--num);font-variant-numeric:tabular-nums}
+.run-meta{display:flex;flex-direction:column;align-items:flex-end;gap:5px;font-size:13px;font-weight:700;color:var(--sub)}
+.pill{font-size:14px;font-weight:900;color:var(--ink);padding:3px 10px;border-radius:8px;background:var(--bg)}
+.nextstart{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-block:8px 0;margin-inline:16px;padding:8px 12px;border-radius:10px;background:var(--accent);color:var(--on-accent);font-weight:900}
+.nextstart .who2{min-width:0;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nextstart small{font-size:11px;font-weight:700;display:block}
+.nextstart .cd{font:700 34px/0.9 var(--num);font-variant-numeric:tabular-nums;white-space:nowrap}
+.nextstart.go{background:var(--inv);color:var(--inv-ink)}
+.call{display:flex;align-items:center;gap:12px;margin-block:8px 0;margin-inline:16px;padding:8px 14px;min-height:66px;background:var(--inv);color:var(--inv-ink);border-radius:12px}
+.call .no{font:700 52px/0.9 var(--num);min-width:46px;text-align:center}
+.call .body{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+.call .l1{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.call .nm{font-size:17px;font-weight:900}
+.call .lp{font-size:14px;font-weight:700}
+.call .tm{font:700 28px/0.9 var(--num);font-variant-numeric:tabular-nums}
+.call .msg{font-size:13px;font-weight:700;color:var(--inv-sub)}
+.grid{flex:1;min-height:0;display:grid;grid-template-columns:repeat(var(--cols),minmax(0,1fr));grid-template-rows:repeat(var(--rows),minmax(0,150px));align-content:start;gap:6px;padding-block:8px;padding-inline:16px}
+.tile{display:flex;flex-direction:column;justify-content:space-between;min-width:0;min-height:0;padding:6px 7px 7px;border-radius:10px;border:2px solid var(--line);background:var(--surface);color:var(--ink);text-align:left;touch-action:manipulation;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent;overflow:hidden}
+.tile:active{transform:scale(.96)}
+.t-top{display:flex;justify-content:space-between;align-items:baseline;gap:2px}
+.t-no{font:700 34px/0.85 var(--num)}
+.t-laps{font:600 20px/1 var(--num);white-space:nowrap}
+.t-laps small{font:700 10px var(--jp)}
+.t-name{font-size:12px;font-weight:700;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.t-row{display:flex;align-items:baseline;gap:4px;white-space:nowrap}
+.t-lap{font:600 19px/1 var(--num);font-variant-numeric:tabular-nums}
+.t-trend{font-size:11px;font-weight:900}
+.t-bar{height:4px;border-radius:2px;background:var(--track);overflow:hidden}
+.t-bar i{display:block;height:100%;width:0;background:var(--sub)}
+.tile.is-last{border-color:var(--ink)}
+.tile.is-soon{background:var(--accent-soft);border-color:var(--accent)}
+.tile.is-soon .t-bar i{background:var(--accent)}
+.tile.is-late{background:var(--warn-soft);border-color:var(--warn)}
+.tile.is-late .t-bar i{background:var(--warn)}
+.tile.is-late .t-trend{color:var(--warn)}
+.tile.is-done{background:var(--inv);border-color:var(--inv);color:var(--inv-ink)}
+.tile.is-done .t-bar{background:var(--inv-sub)}
+.tile.is-done .t-bar i{background:var(--inv-ink)}
+.tile.is-done .up,.tile.is-done .down,.tile.is-next .up,.tile.is-next .down{color:inherit}
+.tile.is-wait{background:transparent;border-style:dashed;border-color:var(--sub);color:var(--sub)}
+.tile.is-next{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.tile.is-dnf{opacity:.55;border-style:dashed}
+.run-bar{display:flex;gap:8px;padding-block:0 10px;padding-inline:16px}
+.run-bar .undo{flex:1;min-width:0;height:54px;border-radius:12px;border:2px solid var(--ink);background:var(--surface);font-size:15px;font-weight:900;display:flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap;overflow:hidden}
+.run-bar .end{width:72px;height:54px;border-radius:12px;border:1px solid var(--line);background:var(--surface);font-size:15px;font-weight:900}
+@media (max-height:640px){
+  .clock{font-size:40px}.call{min-height:56px}.call .no{font-size:42px}
+  .t-no{font-size:28px}.t-laps{font-size:17px}.t-lap{font-size:17px}.t-name{font-size:11px}.tile{padding:4px 6px 5px}
+  .run-bar .undo,.run-bar .end{height:48px}
+}
+
+/* roster */
+.rost{display:grid;grid-template-columns:64px minmax(0,1fr) 44px;gap:8px;align-items:center}
+.rost input{height:46px;border-radius:10px;border:1px solid var(--line);background:var(--bg);padding:0 10px;font-size:16px;font-weight:700;min-width:0;width:100%}
+.rost input.in-no{font:700 24px var(--num);text-align:center;padding:0 4px}
+.rost button{width:44px;height:44px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--sub);display:flex;align-items:center;justify-content:center}
+.in-dist{width:96px;height:44px;border-radius:10px;border:1px solid var(--line);background:var(--bg);padding:0 10px;font:700 22px var(--num);text-align:right}
+
+/* sheet + toast */
+.backdrop{position:fixed;inset:0;background:rgba(8,14,26,.55);display:flex;align-items:flex-end;justify-content:center;z-index:20}
+.sheet{width:100%;max-width:520px;max-height:88%;overflow-y:auto;background:var(--surface);color:var(--ink);border-radius:16px 16px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:12px}
+.sheet-head{display:flex;align-items:center;gap:12px}
+.sheet-head .no{font:700 48px/0.9 var(--num)}
+.sheet-head .ttl{flex:1;min-width:0}
+.sheet textarea{width:100%;height:180px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);padding:10px;font:500 12px/1.4 ui-monospace,Menlo,monospace}
+.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);max-width:calc(100% - 32px);padding:10px 16px;border-radius:10px;background:var(--inv);color:var(--inv-ink);font-size:14px;font-weight:900;z-index:30;text-align:center}
+.chart{width:100%;height:auto;display:block}
+.ch-t{fill:var(--sub);font:600 12px var(--num)}
+.ch-g{stroke:var(--line);stroke-width:1;stroke-dasharray:3 3}
+.ch-l{stroke:var(--accent);stroke-width:2;fill:none;stroke-linejoin:round;stroke-linecap:round}
+.ch-d{fill:var(--accent)}
+.ch-e{fill:var(--surface);stroke:var(--accent);stroke-width:2.5}
+@media (prefers-reduced-motion:reduce){.tile:active{transform:none}}
+</style>
+
+<div id="app">
+  <header class="topbar" id="topbar">
+    <div class="brand">30周ラン記録</div>
+    <div class="sync" id="sync">この端末に保存</div>
+  </header>
+  <main class="view" id="view"></main>
+  <nav class="tabs" id="tabs" aria-label="画面の切り替え">
+    <button type="button" data-act="tab" data-v="setup">今日のラン</button>
+    <button type="button" data-act="tab" data-v="history">記録</button>
+    <button type="button" data-act="tab" data-v="roster">名簿・設定</button>
+  </nav>
+</div>
+<div class="backdrop" id="backdrop" hidden><div class="sheet" id="sheet" role="dialog" aria-modal="true"></div></div>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+(function () {
+'use strict';
+
+/* ---------- helpers ---------- */
+const $ = (s, r) => (r || document).querySelector(s);
+const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const r1 = (x) => Math.round(x * 10) / 10;
+const mean = (a) => a.reduce((x, y) => x + y, 0) / a.length;
+const clone = (o) => JSON.parse(JSON.stringify(o));
+const pad = (n) => (n < 10 ? '0' : '') + n;
+const dname = (p) => (p.name ? p.name : '選手' + p.no);
+const rid = () => Math.random().toString(36).slice(2, 6);
+
+function fmtMS(sec) { const s = Math.max(0, Math.round(sec)); return Math.floor(s / 60) + ':' + pad(s % 60); }
+function fmtClock(sec) { const s = Math.max(0, Math.floor(sec)); return pad(Math.floor(s / 60)) + ':' + pad(s % 60); }
+function fmtLap(sec) { if (sec < 60) return sec.toFixed(1); const m = Math.floor(sec / 60); const r = sec - m * 60; return m + ':' + (r < 10 ? '0' : '') + r.toFixed(1); }
+function fmtTenth(sec) { const m = Math.floor(sec / 60); const r = sec - m * 60; return m + ':' + (r < 10 ? '0' : '') + r.toFixed(1); }
+function fmtSigned(sec) { const a = Math.abs(sec); return (sec > 0 ? '+' : sec < 0 ? '−' : '±') + (a >= 60 ? fmtMS(a) : a.toFixed(1)); }
+function fmtDelta(sec) { const s = Math.round(sec); return (s > 0 ? '+' : s < 0 ? '−' : '±') + fmtMS(Math.abs(s)); }
+const WD = ['日', '月', '火', '水', '木', '金', '土'];
+function ymd(t) { const d = new Date(t); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+function hm(t) { const d = new Date(t); return pad(d.getHours()) + ':' + pad(d.getMinutes()); }
+function jdate(t) { const d = new Date(t); return (d.getMonth() + 1) + '月' + d.getDate() + '日（' + WD[d.getDay()] + '）'; }
+function jdateY(t) { const d = new Date(t); return d.getFullYear() + '年' + jdate(t); }
+function modeName(m) { return m === 'handicap' ? 'ハンデスタート' : '一斉スタート'; }
+
+/* ---------- storage: this device first, cloud when available ---------- */
+const LS = {
+  get(k, d) { try { const v = localStorage.getItem('run30.' + k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem('run30.' + k, JSON.stringify(v)); return true; } catch (e) { return false; } },
+  del(k) { try { localStorage.removeItem('run30.' + k); } catch (e) { /* ignore */ } }
+};
+function defaultRoster() {
+  const players = [];
+  for (let i = 1; i <= 20; i++) players.push({ pid: 'p' + i, no: String(i), name: '' });
+  return { players: players, lapsTarget: 30, lapDistance: null, guardSec: 15, sound: true, updatedAt: 0 };
+}
+const S = {
+  roster: LS.get('roster', null) || defaultRoster(),
+  sessions: LS.get('sessions', {}),
+  pending: LS.get('pending', []),
+  pendingDel: LS.get('pendingDel', []),
+  run: LS.get('run', null),
+  view: 'setup', resultId: null, resultSort: 'rank', histMode: 'date',
+  setup: { present: {}, mode: 'mass', ratio: 1, base: 'last', round5: true, laps: 30 }
+};
+S.setup.laps = S.roster.lapsTarget || 30;
+
+let db = null;
+let rosterTimer = null;
+function setSync(state) {
+  const el = $('#sync'); if (!el) return;
+  el.textContent = state === 'cloud' ? 'クラウドに保存済み' : state === 'syncing' ? '同期中…' : state === 'error' ? 'この端末に保存（クラウド未同期）' : 'この端末に保存';
+}
+function saveLocal() { LS.set('sessions', S.sessions); LS.set('pending', S.pending); LS.set('pendingDel', S.pendingDel); }
+function saveRosterLocal() { S.roster.updatedAt = Date.now(); LS.set('roster', S.roster); clearTimeout(rosterTimer); rosterTimer = setTimeout(pushRoster, 900); }
+async function pushRoster() { if (!db) return; try { await db.doc('config/roster').set(clone(S.roster)); setSync('cloud'); } catch (e) { setSync('error'); } }
+async function pushSession(id) {
+  if (!db || !S.sessions[id]) return;
+  try { await db.doc('sessions/' + id).set(clone(S.sessions[id])); S.pending = S.pending.filter((x) => x !== id); saveLocal(); setSync(S.pending.length ? 'error' : 'cloud'); }
+  catch (e) { setSync('error'); }
+}
+function storeSession(sess) {
+  sess.savedAt = Date.now();
+  S.sessions[sess.id] = sess;
+  if (S.pending.indexOf(sess.id) < 0) S.pending.push(sess.id);
+  saveLocal(); pushSession(sess.id);
+}
+async function removeSession(id) {
+  delete S.sessions[id];
+  S.pending = S.pending.filter((x) => x !== id);
+  if (S.pendingDel.indexOf(id) < 0) S.pendingDel.push(id);
+  saveLocal(); await flushDeletes();
+}
+async function flushDeletes() {
+  if (!db) return;
+  for (const id of S.pendingDel.slice()) {
+    try { await db.doc('deleted/' + id).set({ at: Date.now() }); await db.doc('sessions/' + id).delete(); S.pendingDel = S.pendingDel.filter((x) => x !== id); saveLocal(); }
+    catch (e) { setSync('error'); return; }
+  }
+}
+async function initCloud() {
+  try {
+    if (!window.claude || typeof window.claude.use !== 'function') return;
+    setSync('syncing');
+    db = await window.claude.use('db');
+  } catch (e) { db = null; }
+  if (!db) { setSync('local'); return; }
+  try {
+    const rs = await db.doc('config/roster').get();
+    const remote = rs.exists ? rs.data() : null;
+    if (remote && remote.players && (remote.updatedAt || 0) > (S.roster.updatedAt || 0)) { S.roster = clone(remote); LS.set('roster', S.roster); S.setup.laps = S.roster.lapsTarget || 30; }
+    else if ((S.roster.updatedAt || 0) > ((remote && remote.updatedAt) || 0)) { await db.doc('config/roster').set(clone(S.roster)); }
+    await flushDeletes();
+    const gone = await db.collection('deleted').limit(1000).get();
+    gone.docs.forEach((d) => { if (S.sessions[d.id]) { delete S.sessions[d.id]; S.pending = S.pending.filter((x) => x !== d.id); } });
+    const qs = await db.collection('sessions').limit(1000).get();
+    const remoteAt = {};
+    qs.docs.forEach((d) => {
+      const s = d.data(); if (!s || !s.id || !s.players) return;
+      remoteAt[s.id] = s.savedAt || 0;
+      const loc = S.sessions[s.id];
+      if (!loc || (s.savedAt || 0) > (loc.savedAt || 0)) S.sessions[s.id] = clone(s);
+    });
+    for (const id of Object.keys(S.sessions)) {
+      if (!(id in remoteAt) || (S.sessions[id].savedAt || 0) > remoteAt[id]) await db.doc('sessions/' + id).set(clone(S.sessions[id]));
+    }
+    S.pending = [];
+    saveLocal(); setSync('cloud');
+    if (!S.run) render();
+  } catch (e) { setSync('error'); }
+}
+
+/* ---------- calculations ---------- */
+function lapsOf(p) { const out = []; let prev = p.offset || 0; for (const t of p.passes) { out.push(r1(t - prev)); prev = t; } return out; }
+function netOf(p) { return p.passes.length ? r1(p.passes[p.passes.length - 1] - (p.offset || 0)) : null; }
+function recordFor(pid, laps, base, beforeT0) {
+  let best = null, lastT = -1, last = null;
+  Object.keys(S.sessions).forEach((id) => {
+    const s = S.sessions[id];
+    if (s.lapsTarget !== laps) return;
+    if (beforeT0 != null && s.t0 >= beforeT0) return;
+    const p = s.players.find((x) => x.pid === pid);
+    if (!p || p.status !== 'fin') return;
+    const net = netOf(p);
+    if (best == null || net < best) best = net;
+    if (s.t0 > lastT) { lastT = s.t0; last = net; }
+  });
+  return base === 'best' ? best : last;
+}
+function statsOf(sess, p) {
+  const laps = lapsOf(p); const n = laps.length;
+  const net = netOf(p);
+  const avg = n ? mean(laps) : null;
+  let best = null, bestLap = null;
+  laps.forEach((v, i) => { if (best == null || v < best) { best = v; bestLap = i + 1; } });
+  let first = null, second = null, fade = null, cv = null;
+  if (n >= 4) {
+    const h = Math.floor(n / 2);
+    first = mean(laps.slice(0, h)); second = mean(laps.slice(n - h));
+    fade = (second - first) / first * 100;
+    cv = Math.sqrt(mean(laps.map((v) => (v - avg) * (v - avg)))) / avg * 100;
+  }
+  let vo2 = null, kmh = null;
+  if (p.status === 'fin' && sess.lapDistance > 0 && net > 0) {
+    const tmin = net / 60; const v = sess.lapDistance * n / tmin;
+    kmh = v * 60 / 1000;
+    if (tmin >= 3.5) {
+      const vo = -4.60 + 0.182258 * v + 0.000104 * v * v;
+      const pct = 0.8 + 0.1894393 * Math.exp(-0.012778 * tmin) + 0.2989558 * Math.exp(-0.1932605 * tmin);
+      vo2 = vo / pct;
+    }
+  }
+  return { laps: laps, n: n, net: net, avg: avg, best: best, bestLap: bestLap, first: first, second: second, fade: fade, cv: cv, vo2: vo2, kmh: kmh };
+}
+function summarize(sess) {
+  const rows = sess.players.map((p) => {
+    const st = statsOf(sess, p);
+    const fin = p.status === 'fin';
+    const prev = fin ? recordFor(p.pid, sess.lapsTarget, 'last', sess.t0) : null;
+    const pbBefore = fin ? recordFor(p.pid, sess.lapsTarget, 'best', sess.t0) : null;
+    return Object.assign({ p: p, fin: fin, finishAt: fin ? p.passes[p.passes.length - 1] : null, prev: prev, delta: fin && prev != null ? r1(st.net - prev) : null, pb: fin && pbBefore != null && st.net < pbBefore, rank: null, order: null, gap: null }, st);
+  });
+  const fins = rows.filter((r) => r.fin);
+  fins.slice().sort((a, b) => a.net - b.net).forEach((r, i) => { r.rank = i + 1; });
+  fins.slice().sort((a, b) => a.finishAt - b.finishAt).forEach((r, i) => { r.order = i + 1; });
+  const top = fins.length ? Math.min.apply(null, fins.map((r) => r.net)) : null;
+  fins.forEach((r) => { r.gap = r1(r.net - top); });
+  rows.sort((a, b) => (a.fin && b.fin) ? a.rank - b.rank : a.fin ? -1 : b.fin ? 1 : b.n - a.n);
+  return { rows: rows, top: top, finished: fins.length, meanNet: fins.length ? mean(fins.map((r) => r.net)) : null };
+}
+function handicapPlan() {
+  const su = S.setup;
+  const ps = S.roster.players.filter((p) => su.present[p.pid] !== false);
+  const rows = ps.map((p) => ({ pid: p.pid, no: p.no, name: dname(p), rec: recordFor(p.pid, su.laps, su.base, null) }));
+  const have = rows.filter((r) => r.rec != null);
+  if (have.length < 2) return { ok: false, rows: rows, have: have.length };
+  const slow = Math.max.apply(null, have.map((r) => r.rec));
+  const top = Math.min.apply(null, have.map((r) => r.rec));
+  rows.forEach((r) => {
+    let off = r.rec != null ? (slow - r.rec) * su.ratio : 0;
+    off = su.round5 ? Math.round(off / 5) * 5 : Math.round(off);
+    r.offset = off; r.gap = r.rec != null ? r1(r.rec - top) : null;
+  });
+  rows.sort((a, b) => (a.offset - b.offset) || ((b.rec || 1e9) - (a.rec || 1e9)));
+  return { ok: true, rows: rows, span: rows[rows.length - 1].offset, have: have.length };
+}
+
+/* ---------- CSV ---------- */
+function cell(v) {
+  if (v == null) return '';
+  let s = String(v);
+  if (/^[=+\-@]/.test(s) && isNaN(Number(s))) s = "'" + s;
+  return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+const f1 = (x) => (x == null ? '' : x.toFixed(1));
+function csvResults(list) {
+  const out = [['日付', '開始時刻', 'スタート方式', '周回数', '1周の距離(m)', '順位(タイム順)', '着順', '番号', '名前', '状態', '走った周回', 'タイム', 'タイム(秒)', 'トップ差(秒)', 'スタートの遅れ(秒)', '平均ラップ(秒)', 'ベストラップ(秒)', 'ベストラップの周', '前半の平均ラップ(秒)', '後半の平均ラップ(秒)', '後半の落ち(%)', 'ラップのばらつき(%)', '前回比(秒)', '自己ベスト更新', '平均時速(km/h)', '推定VO2max(参考)']];
+  list.forEach((s) => {
+    summarize(s).rows.forEach((r) => {
+      out.push([s.date, hm(s.t0), modeName(s.mode), s.lapsTarget, s.lapDistance || '', r.rank || '', r.order || '', r.p.no, dname(r.p),
+        r.p.status === 'fin' ? '完走' : r.p.status === 'dnf' ? '棄権' : '未完走', r.n, r.fin ? fmtTenth(r.net) : '', r.fin ? f1(r.net) : '', r.fin ? f1(r.gap) : '', f1(r.p.offset || 0),
+        f1(r.avg), f1(r.best), r.bestLap || '', f1(r.first), f1(r.second), f1(r.fade), f1(r.cv), f1(r.delta), r.pb ? '○' : '', f1(r.kmh), f1(r.vo2)]);
+    });
+  });
+  return out.map((row) => row.map(cell).join(',')).join('\r\n');
+}
+function csvLaps(list) {
+  const out = [['日付', '開始時刻', 'スタート方式', '番号', '名前', '周', 'ラップ(秒)', '通算(秒)', '推定で補った周']];
+  list.forEach((s) => {
+    s.players.forEach((p) => {
+      const laps = lapsOf(p);
+      laps.forEach((v, i) => { out.push([s.date, hm(s.t0), modeName(s.mode), p.no, dname(p), i + 1, f1(v), f1(p.passes[i] - (p.offset || 0)), (p.est || []).indexOf(i) >= 0 ? '○' : '']); });
+    });
+  });
+  return out.map((row) => row.map(cell).join(',')).join('\r\n');
+}
+async function exportCsv(filename, text) {
+  const data = '﻿' + text;
+  let dl = null;
+  try { if (window.claude && window.claude.use) dl = await window.claude.use('downloads'); } catch (e) { dl = null; }
+  if (dl) {
+    try { await dl.save({ filename: filename, data: data }); toast('CSVを保存しました'); return; }
+    catch (e) { if (e && e.code === 'declined') return; }
+  }
+  openSheet('<div class="sheet-head"><div class="ttl"><h2>CSV（コピーして使う）</h2><p class="hint">この画面ではファイル保存ができないため、下の内容をコピーして表計算ソフトに貼り付けてください。</p></div></div>' +
+    '<textarea id="csvText" readonly>' + esc(text) + '</textarea>' +
+    '<div class="two"><button type="button" class="btn strong" data-act="copy-csv">すべてコピー</button><button type="button" class="btn" data-act="close">閉じる</button></div>');
+}
+
+/* ---------- sheet + toast ---------- */
+let toastTimer = null;
+function toast(msg) { const t = $('#toast'); t.textContent = msg; t.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.hidden = true; }, 2200); }
+function openSheet(html) { $('#sheet').innerHTML = html; $('#backdrop').hidden = false; $('#sheet').scrollTop = 0; }
+function closeSheet() { $('#backdrop').hidden = true; $('#sheet').innerHTML = ''; }
+
+/* ---------- charts ---------- */
+function lineChart(vals, xl, xr, fmt) {
+  const W = 320, H = 124, L = 44, R = 12, T = 14, B = 24;
+  const mn = Math.min.apply(null, vals), mx = Math.max.apply(null, vals);
+  const span = (mx - mn) || 1;
+  const x = (i) => L + (vals.length === 1 ? 0.5 : i / (vals.length - 1)) * (W - L - R);
+  const y = (v) => T + (1 - (v - mn) / span) * (H - T - B);
+  const pts = vals.map((v, i) => x(i).toFixed(1) + ',' + y(v).toFixed(1)).join(' ');
+  const last = vals.length - 1;
+  let s = '<svg class="chart" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="推移のグラフ">';
+  s += '<line class="ch-g" x1="' + L + '" x2="' + (W - R) + '" y1="' + y(mx) + '" y2="' + y(mx) + '"></line>';
+  if (mx !== mn) s += '<line class="ch-g" x1="' + L + '" x2="' + (W - R) + '" y1="' + y(mn) + '" y2="' + y(mn) + '"></line>';
+  s += '<text class="ch-t" x="' + (L - 6) + '" y="' + (y(mx) + 4) + '" text-anchor="end">' + esc(fmt(mx)) + '</text>';
+  if (mx !== mn) s += '<text class="ch-t" x="' + (L - 6) + '" y="' + (y(mn) + 4) + '" text-anchor="end">' + esc(fmt(mn)) + '</text>';
+  if (vals.length > 1) s += '<polyline class="ch-l" points="' + pts + '"></polyline>';
+  vals.forEach((v, i) => { if (i !== last) s += '<circle class="ch-d" cx="' + x(i).toFixed(1) + '" cy="' + y(v).toFixed(1) + '" r="2.2"></circle>'; });
+  s += '<circle class="ch-e" cx="' + x(last).toFixed(1) + '" cy="' + y(vals[last]).toFixed(1) + '" r="4"></circle>';
+  s += '<text class="ch-t" x="' + L + '" y="' + (H - 6) + '" text-anchor="start">' + esc(xl) + '</text>';
+  s += '<text class="ch-t" x="' + (W - R) + '" y="' + (H - 6) + '" text-anchor="end">' + esc(xr) + '</text>';
+  return s + '</svg>';
+}
+
+/* ---------- views ---------- */
+const view = $('#view');
+function setTabs() {
+  const cur = S.view === 'results' ? 'history' : S.view;
+  document.querySelectorAll('#tabs button').forEach((b) => { if (b.dataset.v === cur) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
+}
+function render() {
+  if (S.run) return;
+  $('#topbar').hidden = false; $('#tabs').hidden = false;
+  view.className = 'view';
+  setTabs();
+  if (S.view === 'setup') view.innerHTML = viewSetup();
+  else if (S.view === 'roster') view.innerHTML = viewRoster();
+  else if (S.view === 'results' && S.sessions[S.resultId]) view.innerHTML = viewResults(S.sessions[S.resultId]);
+  else { S.view = 'history'; setTabs(); view.innerHTML = viewHistory(); }
+}
+function go(v) { S.view = v; render(); view.scrollTop = 0; }
+
+function viewSetup() {
+  const su = S.setup; const ps = S.roster.players;
+  const present = ps.filter((p) => su.present[p.pid] !== false);
+  let plan = null, planHtml = '';
+  if (su.mode === 'handicap') {
+    plan = handicapPlan();
+    planHtml += '<div class="label">ハンデの強さ（トップとの差を何%つけるか）</div><div class="seg num">' +
+      [1, 0.75, 0.5].map((r) => '<button type="button" data-act="ratio" data-v="' + r + '" aria-pressed="' + (su.ratio === r) + '">' + Math.round(r * 100) + '%</button>').join('') + '</div>' +
+      '<div class="label">もとにする記録（' + su.laps + '周）</div><div class="seg">' +
+      '<button type="button" data-act="base" data-v="last" aria-pressed="' + (su.base === 'last') + '">前回の記録</button>' +
+      '<button type="button" data-act="base" data-v="best" aria-pressed="' + (su.base === 'best') + '">自己ベスト</button></div>' +
+      '<div class="row" style="border:0;min-height:48px"><div class="t">スタートを5秒単位にそろえる<small>近いタイムの選手は同時スタート</small></div><button type="button" class="switch" data-act="round5" aria-pressed="' + su.round5 + '">' + (su.round5 ? 'ON' : 'OFF') + '</button></div>';
+    if (!plan.ok) {
+      planHtml += '<div class="empty"><b>' + su.laps + '周の記録が足りません</b>ハンデを作るには、参加メンバーのうち2人以上に' + su.laps + '周の完走記録が必要です。まず一斉スタートで記録を取ってください。</div>';
+    } else {
+      planHtml += '<p style="font-weight:700">遅い順にスタート。最後の選手は ' + fmtMS(plan.span) + ' 後に出ます。</p>' +
+        '<div class="tbl" style="padding-inline:0;background:none"><div class="tr head cols-plan"><span>順</span><span>選手</span><span class="r">記録</span><span class="r">スタート</span></div>' +
+        plan.rows.map((r, i) => '<div class="tr cols-plan"><span class="n s">' + (i + 1) + '</span><span class="who"><i>' + esc(r.no) + '</i><span>' + esc(r.name) + '</span></span><span class="r n s">' + (r.rec != null ? fmtMS(r.rec) : '記録なし') + '</span><span class="r n b down">' + (r.offset === 0 ? '0:00' : '+' + fmtMS(r.offset)) + '</span></div>').join('') + '</div>' +
+        '<p class="hint">スタートの合図（音）と時刻の記録はアプリが自動で行います。記録がない選手は最初にスタートします。</p>';
+    }
+  }
+  const canStart = present.length > 0 && (su.mode === 'mass' || (plan && plan.ok));
+  return '<div class="pagehead"><div class="eyebrow">' + jdate(Date.now()) + '</div><h1>今日のラン</h1></div>' +
+    '<section class="card rows"><div class="row"><div class="t">周回数</div><div class="stepper"><button type="button" data-act="laps" data-v="-1" aria-label="周回数を減らす">−</button><output id="lapsOut">' + su.laps + '</output><button type="button" data-act="laps" data-v="1" aria-label="周回数を増やす">＋</button></div></div></section>' +
+    '<section class="card"><div class="label">スタート方式</div><div class="seg">' +
+    '<button type="button" data-act="mode" data-v="mass" aria-pressed="' + (su.mode === 'mass') + '">一斉スタート</button>' +
+    '<button type="button" data-act="mode" data-v="handicap" aria-pressed="' + (su.mode === 'handicap') + '">ハンデスタート</button></div>' + planHtml + '</section>' +
+    '<section style="display:flex;flex-direction:column;gap:6px"><div class="label-row"><span class="label">参加メンバー　<b>' + present.length + ' / ' + ps.length + '人</b></span><button type="button" class="link" data-act="tab" data-v="roster">名簿を編集</button></div>' +
+    '<div class="chips">' + ps.map((p) => '<button type="button" class="chip" data-act="present" data-pid="' + esc(p.pid) + '" aria-pressed="' + (su.present[p.pid] !== false) + '"><b>' + esc(p.no) + '</b><span>' + esc(p.name) + '</span></button>').join('') + '</div>' +
+    '<p class="hint">欠席の選手はタップして外します。</p></section>' +
+    '<div class="cta"><button type="button" class="primary" data-act="start"' + (canStart ? '' : ' disabled') + '>スタート</button></div>';
+}
+
+function viewRoster() {
+  const ro = S.roster;
+  return '<div class="pagehead"><h1>名簿・設定</h1></div>' +
+    '<section class="card rows"><div class="row"><div class="t">人数</div><div class="stepper"><button type="button" data-act="count" data-v="-1" aria-label="人数を減らす">−</button><output>' + ro.players.length + '<small> 人</small></output><button type="button" data-act="count" data-v="1" aria-label="人数を増やす">＋</button></div></div></section>' +
+    '<section class="card"><div class="label">番号と名前（入力するとすぐ保存されます）</div>' +
+    ro.players.map((p) => '<div class="rost"><input class="in-no" id="no-' + esc(p.pid) + '" data-f="no" data-pid="' + esc(p.pid) + '" inputmode="numeric" maxlength="3" aria-label="番号" value="' + esc(p.no) + '"><input id="name-' + esc(p.pid) + '" data-f="name" data-pid="' + esc(p.pid) + '" maxlength="12" placeholder="名前" aria-label="' + esc(p.no) + '番の名前" value="' + esc(p.name) + '"><button type="button" data-act="rm" data-pid="' + esc(p.pid) + '" aria-label="' + esc(p.no) + '番を名簿から外す"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12"></path><path d="M18 6L6 18"></path></svg></button></div>').join('') +
+    '<button type="button" class="btn" data-act="count" data-v="1">＋ 選手を追加</button></section>' +
+    '<section class="card rows">' +
+    '<div class="row"><div class="t">周回数の初期値</div><div class="stepper"><button type="button" data-act="deflaps" data-v="-1" aria-label="周回数の初期値を減らす">−</button><output>' + ro.lapsTarget + '</output><button type="button" data-act="deflaps" data-v="1" aria-label="周回数の初期値を増やす">＋</button></div></div>' +
+    '<div class="row"><div class="t">二度押しガード<small>同じ選手の連続タップを無視する時間</small></div><div class="stepper"><button type="button" data-act="guard" data-v="-5" aria-label="ガードを短く">−</button><output>' + ro.guardSec + '<small> 秒</small></output><button type="button" data-act="guard" data-v="5" aria-label="ガードを長く">＋</button></div></div>' +
+    '<div class="row"><div class="t"><label for="dist">1周の距離（m・任意）</label><small>入れると時速と推定VO2maxを計算</small></div><input class="in-dist" id="dist" data-f="dist" inputmode="decimal" placeholder="未設定" value="' + (ro.lapDistance || '') + '"></div>' +
+    '<div class="row"><div class="t">スタート合図の音<small>ハンデスタートのカウントダウン</small></div><button type="button" class="switch" data-act="sound" aria-pressed="' + !!ro.sound + '">' + (ro.sound ? 'ON' : 'OFF') + '</button></div>' +
+    '</section>';
+}
+
+function sessionList() { return Object.keys(S.sessions).map((id) => S.sessions[id]).sort((a, b) => b.t0 - a.t0); }
+function viewHistory() {
+  const list = sessionList();
+  let body = '';
+  if (!list.length) {
+    body = '<div class="empty"><b>まだ記録がありません</b>「今日のラン」で記録を取ると、日付ごとにここへ残ります。</div>';
+  } else if (S.histMode === 'date') {
+    body = '<div class="tbl">' + list.map((s) => {
+      const sm = summarize(s);
+      return '<button type="button" class="tr cols-ses" data-act="open" data-id="' + esc(s.id) + '" style="min-height:58px"><span style="display:flex;flex-direction:column;min-width:0"><span style="font-weight:900">' + jdateY(s.t0) + '　' + hm(s.t0) + '</span><span class="hint">' + s.lapsTarget + '周・' + modeName(s.mode) + '・完走 ' + sm.finished + ' / ' + s.players.length + '人</span></span><span class="r"><span class="hint">トップ</span><br><span class="n b">' + (sm.top != null ? fmtMS(sm.top) : '–') + '</span></span></button>';
+    }).join('') + '</div>';
+  } else {
+    const map = {};
+    list.slice().reverse().forEach((s) => s.players.forEach((p) => {
+      if (p.status !== 'fin') return;
+      const m = map[p.pid] || (map[p.pid] = { pid: p.pid, no: p.no, name: dname(p), count: 0, last: null, best: null });
+      const net = netOf(p); m.count++; m.last = net; m.no = p.no; m.name = dname(p);
+      if (m.best == null || net < m.best) m.best = net;
+    }));
+    const order = S.roster.players.map((p) => p.pid);
+    const rows = Object.keys(map).map((k) => map[k]).sort((a, b) => { const x = order.indexOf(a.pid), y = order.indexOf(b.pid); return (x < 0 ? 999 : x) - (y < 0 ? 999 : y); });
+    body = rows.length ? '<div class="tbl"><div class="tr head cols-ply"><span>選手</span><span class="r">回数</span><span class="r">最新</span><span class="r">ベスト</span></div>' +
+      rows.map((m) => '<button type="button" class="tr cols-ply" data-act="player-hist" data-pid="' + esc(m.pid) + '"><span class="who"><i>' + esc(m.no) + '</i><span>' + esc(m.name) + '</span></span><span class="r n s">' + m.count + '</span><span class="r n">' + fmtMS(m.last) + '</span><span class="r n b">' + fmtMS(m.best) + '</span></button>').join('') + '</div><p class="hint">選手をタップすると日付ごとの推移が見られます。</p>'
+      : '<div class="empty"><b>完走の記録がありません</b></div>';
+  }
+  return '<div class="pagehead"><h1>記録</h1></div>' +
+    '<div class="seg"><button type="button" data-act="hist" data-v="date" aria-pressed="' + (S.histMode === 'date') + '">日付ごと</button><button type="button" data-act="hist" data-v="player" aria-pressed="' + (S.histMode === 'player') + '">選手ごと</button></div>' + body +
+    (list.length ? '<div class="two"><button type="button" class="btn" data-act="csv-all-res">全期間の結果CSV</button><button type="button" class="btn" data-act="csv-all-lap">全期間のラップCSV</button></div>' : '');
+}
+
+function viewResults(s) {
+  const sm = summarize(s);
+  const hc = s.mode === 'handicap';
+  let rows = sm.rows.slice();
+  if (hc && S.resultSort === 'order') rows.sort((a, b) => (a.fin && b.fin) ? a.order - b.order : a.fin ? -1 : b.fin ? 1 : b.n - a.n);
+  const lead = (r) => (hc && S.resultSort === 'order' ? r.order : r.rank);
+  return '<div class="pagehead"><div class="eyebrow">' + jdateY(s.t0) + '　' + hm(s.t0) + '・' + s.lapsTarget + '周・' + modeName(s.mode) + '</div><h1>結果</h1></div>' +
+    '<div class="stats"><div class="stat"><span>完走</span><b>' + sm.finished + '<small> / ' + s.players.length + '人</small></b></div><div class="stat"><span>トップ</span><b>' + (sm.top != null ? fmtMS(sm.top) : '–') + '</b></div><div class="stat"><span>全員の平均</span><b>' + (sm.meanNet != null ? fmtMS(sm.meanNet) : '–') + '</b></div></div>' +
+    (hc ? '<div class="seg"><button type="button" data-act="sort" data-v="order" aria-pressed="' + (S.resultSort === 'order') + '">ゴールした順</button><button type="button" data-act="sort" data-v="rank" aria-pressed="' + (S.resultSort !== 'order') + '">タイム順</button></div>' : '') +
+    '<div class="tbl"><div class="tr head cols-res"><span>順</span><span>選手</span><span class="r">タイム</span><span class="r">トップ差</span><span class="r">前回比</span></div>' +
+    rows.map((r) => {
+      const st = r.p.status;
+      const time = r.fin ? fmtMS(r.net) : (st === 'dnf' ? '棄権' : '未完走');
+      const gap = r.fin ? (r.gap === 0 ? '–' : '+' + fmtMS(r.gap)) : r.n + '周';
+      let d = '<span class="n s">–</span>';
+      if (r.fin && r.delta != null) d = '<span class="n ' + (r.delta < 0 ? 'down' : r.delta > 0 ? 'up' : '') + '">' + fmtDelta(r.delta) + '</span>';
+      else if (r.fin) d = '<span class="hint">初記録</span>';
+      return '<button type="button" class="tr cols-res" data-act="detail" data-id="' + esc(s.id) + '" data-pid="' + esc(r.p.pid) + '"><span class="n b">' + (r.fin ? lead(r) : '') + '</span><span class="who"><i>' + esc(r.p.no) + '</i><span>' + esc(dname(r.p)) + '</span>' + (r.pb ? '<span class="tag">自己新</span>' : '') + '</span><span class="r n b">' + time + '</span><span class="r n s">' + gap + '</span><span class="r">' + d + '</span></button>';
+    }).join('') + '</div>' +
+    '<p class="hint">選手をタップすると全ラップと、後半の落ち・ばらつきが見られます。' + (hc ? 'ハンデスタートのタイムは、各自のスタートからの正味タイムです。' : '') + '</p>' +
+    '<button type="button" class="primary" data-act="next-hc" data-laps="' + s.lapsTarget + '" style="font-size:17px;min-height:56px">この記録で次回のハンデを作る</button>' +
+    '<div class="two"><button type="button" class="btn" data-act="csv-res" data-id="' + esc(s.id) + '">結果CSV</button><button type="button" class="btn" data-act="csv-lap" data-id="' + esc(s.id) + '">ラップCSV</button></div>' +
+    '<div class="two"><button type="button" class="btn" data-act="tab" data-v="history">記録一覧へ</button><button type="button" class="btn danger" data-act="ask-del" data-id="' + esc(s.id) + '">この記録を削除</button></div>';
+}
+
+function sheetDetail(s, pid) {
+  const p = s.players.find((x) => x.pid === pid); if (!p) return;
+  const r = summarize(s).rows.find((x) => x.p.pid === pid);
+  const laps = r.laps;
+  let h = '<div class="sheet-head"><div class="no">' + esc(p.no) + '</div><div class="ttl"><h2>' + esc(dname(p)) + '</h2><p class="hint">' + jdate(s.t0) + '・' + (r.fin ? r.rank + '位' : p.status === 'dnf' ? '棄権' : '未完走') + '・' + r.n + ' / ' + s.lapsTarget + '周</p></div></div>';
+  h += '<div class="stats two-col">' +
+    '<div class="stat"><span>タイム</span><b>' + (r.net != null ? fmtTenth(r.net) : '–') + '</b></div>' +
+    '<div class="stat"><span>平均ラップ</span><b>' + (r.avg != null ? fmtLap(r.avg) : '–') + '<small> 秒</small></b></div>' +
+    '<div class="stat"><span>ベストラップ' + (r.bestLap ? '（' + r.bestLap + '周目）' : '') + '</span><b>' + (r.best != null ? fmtLap(r.best) : '–') + '</b></div>' +
+    '<div class="stat"><span>前回比</span><b class="' + (r.delta < 0 ? 'down' : r.delta > 0 ? 'up' : '') + '">' + (r.delta != null ? fmtDelta(r.delta) : '–') + '</b></div>' +
+    '<div class="stat"><span>後半の落ち（前半→後半）</span><b class="' + (r.fade > 3 ? 'up' : '') + '">' + (r.fade != null ? (r.fade > 0 ? '+' : '') + r.fade.toFixed(1) + '<small> %</small>' : '–') + '</b></div>' +
+    '<div class="stat"><span>ラップのばらつき</span><b>' + (r.cv != null ? r.cv.toFixed(1) + '<small> %</small>' : '–') + '</b></div>' +
+    (r.kmh != null ? '<div class="stat"><span>平均時速</span><b>' + r.kmh.toFixed(1) + '<small> km/h</small></b></div><div class="stat"><span>推定VO2max（参考）</span><b>' + (r.vo2 != null ? r.vo2.toFixed(1) : '–') + '</b></div>' : '') + '</div>';
+  if (laps.length >= 2) h += '<div><div class="label">ラップ推移（秒・上ほど遅い）</div>' + lineChart(laps, '1周目', laps.length + '周目', (v) => v.toFixed(1)) + '</div>';
+  if (laps.length) {
+    h += '<div class="tbl" style="background:var(--bg)"><div class="tr head cols-lap"><span>周</span><span class="r">ラップ</span><span class="r">通算</span><span class="r">前周差</span></div>' +
+      laps.map((v, i) => { const d = i ? r1(v - laps[i - 1]) : null; return '<div class="tr cols-lap" style="min-height:32px"><span class="n s">' + (i + 1) + ((p.est || []).indexOf(i) >= 0 ? '*' : '') + '</span><span class="r n">' + fmtLap(v) + '</span><span class="r n s">' + fmtMS(p.passes[i] - (p.offset || 0)) + '</span><span class="r n ' + (d > 0.4 ? 'up' : d < -0.4 ? 'down' : 's') + '">' + (d == null ? '–' : fmtSigned(d)) + '</span></div>'; }).join('') + '</div>';
+    if ((p.est || []).length) h += '<p class="hint">* は押し忘れを推定で補った周です。</p>';
+  }
+  h += '<button type="button" class="btn" data-act="close">閉じる</button>';
+  openSheet(h);
+}
+function sheetPlayerHist(pid) {
+  const list = sessionList().slice().reverse();
+  const items = [];
+  list.forEach((s) => { const p = s.players.find((x) => x.pid === pid); if (p && p.status === 'fin') items.push({ s: s, p: p, net: netOf(p), avg: netOf(p) / p.passes.length }); });
+  if (!items.length) return;
+  const lastP = items[items.length - 1].p;
+  let h = '<div class="sheet-head"><div class="no">' + esc(lastP.no) + '</div><div class="ttl"><h2>' + esc(dname(lastP)) + '</h2><p class="hint">完走 ' + items.length + '回</p></div></div>';
+  if (items.length >= 2) h += '<div><div class="label">平均ラップの推移（秒・下がるほど速い）</div>' + lineChart(items.map((x) => r1(x.avg)), jdate(items[0].s.t0), jdate(items[items.length - 1].s.t0), (v) => v.toFixed(1)) + '</div>';
+  h += '<div class="tbl" style="background:var(--bg)"><div class="tr head cols-lap" style="grid-template-columns:minmax(0,1fr) 60px 56px 60px"><span>日付</span><span class="r">タイム</span><span class="r">平均</span><span class="r">前回比</span></div>' +
+    items.slice().reverse().map((x) => { const prev = recordFor(pid, x.s.lapsTarget, 'last', x.s.t0); const d = prev != null ? x.net - prev : null; return '<div class="tr" style="grid-template-columns:minmax(0,1fr) 60px 56px 60px"><span style="font-weight:700;font-size:13px">' + jdate(x.s.t0) + '<span class="hint">　' + x.s.lapsTarget + '周</span></span><span class="r n b">' + fmtMS(x.net) + '</span><span class="r n s">' + fmtLap(x.avg) + '</span><span class="r n ' + (d < 0 ? 'down' : d > 0 ? 'up' : 's') + '">' + (d == null ? '–' : fmtDelta(d)) + '</span></div>'; }).join('') + '</div>' +
+    '<button type="button" class="btn" data-act="close">閉じる</button>';
+  openSheet(h);
+}
+
+/* ---------- run engine ---------- */
+let tiles = {}, tickTimer = null, lpTimer = null, press = null, suppress = false, sig = {}, guardMsg = null, wake = null, actx = null;
+function initAudio() { try { actx = actx || new (window.AudioContext || window.webkitAudioContext)(); if (actx.state === 'suspended') actx.resume(); } catch (e) { /* no sound */ } }
+function beep(freq, dur) {
+  if (!S.roster.sound || !actx) return;
+  try { const o = actx.createOscillator(), g = actx.createGain(); o.frequency.value = freq; o.connect(g); g.connect(actx.destination); const t = actx.currentTime; g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.7, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + dur); o.start(t); o.stop(t + dur + 0.03); } catch (e) { /* no sound */ }
+}
+function buzz(ms) { try { if (navigator.vibrate) navigator.vibrate(ms); } catch (e) { /* ignore */ } }
+async function requestWake() { try { if (navigator.wakeLock && S.run) wake = await navigator.wakeLock.request('screen'); } catch (e) { wake = null; } }
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && S.run) requestWake(); });
+function nowSec() { return (Date.now() - S.run.t0) / 1000; }
+function saveRun() { if (S.run) LS.set('run', S.run); else LS.del('run'); }
+function sid(t) { const d = new Date(t); return 's' + d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate()) + '-' + pad(d.getHours()) + pad(d.getMinutes()) + '-' + rid(); }
+
+function startRun() {
+  const su = S.setup;
+  const ps = S.roster.players.filter((p) => su.present[p.pid] !== false);
+  if (!ps.length) return;
+  const offsets = {};
+  if (su.mode === 'handicap') { const plan = handicapPlan(); if (!plan.ok) return; plan.rows.forEach((r) => { offsets[r.pid] = r.offset; }); }
+  const t0 = Date.now();
+  S.run = { id: sid(t0), t0: t0, date: ymd(t0), mode: su.mode, lapsTarget: su.laps, lapDistance: S.roster.lapDistance || null, guardSec: S.roster.guardSec, ratio: su.ratio, base: su.base,
+    players: ps.map((p) => ({ pid: p.pid, no: String(p.no), name: p.name || '', offset: offsets[p.pid] || 0, passes: [], est: [], status: 'run' })), undo: [], lastPid: null };
+  initAudio(); saveRun(); requestWake(); buildRun();
+  if (su.mode === 'mass') beep(1320, 0.4);
+}
+function buildRun() {
+  const r = S.run; sig = {}; guardMsg = null;
+  $('#topbar').hidden = true; $('#tabs').hidden = true;
+  const n = r.players.length; const cols = n <= 20 ? 4 : n <= 30 ? 5 : 6; const rows = Math.ceil(n / cols);
+  view.className = 'view run';
+  view.innerHTML = '<div class="run-head"><div><div class="eyebrow">' + r.lapsTarget + '周・' + modeName(r.mode) + '</div><div class="clock" id="clock">00:00</div></div><div class="run-meta"><div id="lead"></div><div class="pill" id="fin"></div></div></div>' +
+    '<div class="nextstart" id="nextstart" hidden></div>' +
+    '<div class="call" id="call"></div>' +
+    '<div class="grid" id="grid" style="--cols:' + cols + ';--rows:' + rows + '"></div>' +
+    '<div class="run-bar"><button type="button" class="undo" data-act="undo"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14 4 9l5-5"></path><path d="M4 9h10a6 6 0 0 1 0 12h-3"></path></svg><span id="undoLabel"></span></button><button type="button" class="end" data-act="ask-end">終了</button></div>';
+  const grid = $('#grid'); tiles = {};
+  r.players.forEach((p) => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'tile'; b.dataset.pid = p.pid;
+    b.setAttribute('aria-label', p.no + '番 ' + dname(p) + ' の通過を記録');
+    b.innerHTML = '<span class="t-top"><span class="t-no">' + esc(p.no) + '</span><span class="t-laps"></span></span><span class="t-name">' + esc(p.name) + '</span><span class="t-row"><span class="t-lap"></span><span class="t-trend"></span></span><span class="t-bar"><i></i></span>';
+    grid.appendChild(b);
+    tiles[p.pid] = { el: b, laps: $('.t-laps', b), lap: $('.t-lap', b), trend: $('.t-trend', b), bar: $('i', b), c: {} };
+  });
+  grid.addEventListener('pointerdown', (e) => {
+    const t = e.target.closest('.tile'); if (!t) return;
+    initAudio(); suppress = false; press = { pid: t.dataset.pid, t: Date.now() };
+    clearTimeout(lpTimer);
+    lpTimer = setTimeout(() => { suppress = true; press = null; buzz(30); sheetRunPlayer(t.dataset.pid); }, 550);
+  });
+  ['pointerup', 'pointercancel', 'pointerleave'].forEach((ev) => grid.addEventListener(ev, () => clearTimeout(lpTimer)));
+  grid.addEventListener('contextmenu', (e) => e.preventDefault());
+  grid.addEventListener('click', (e) => {
+    const t = e.target.closest('.tile'); if (!t) return;
+    if (suppress) { suppress = false; return; }
+    const tm = press && press.pid === t.dataset.pid ? press.t : Date.now();
+    press = null; tap(t.dataset.pid, tm);
+  });
+  clearInterval(tickTimer); tickTimer = setInterval(tick, 250);
+  tick(); updateCall();
+}
+function setIf(obj, key, val, fn) { if (obj.c[key] !== val) { obj.c[key] = val; fn(val); } }
+function updateTile(p, now, nextOff) {
+  const t = tiles[p.pid]; if (!t) return;
+  const r = S.run; const n = p.passes.length;
+  let cls = 'tile', lapsH = n + '<small>周</small>', lap = '–', trend = '', tcls = '', bar = 0;
+  if (p.status === 'dnf') { cls += ' is-dnf'; lap = '棄権'; }
+  else if (p.status === 'fin') { cls += ' is-done'; lap = fmtMS(netOf(p)); trend = 'FIN'; bar = 100; }
+  else if (now < p.offset) {
+    const nx = p.offset === nextOff;
+    cls += nx ? ' is-next' : ' is-wait'; lapsH = '<small>' + (nx ? '次' : '待機') + '</small>';
+    lap = nx ? fmtMS(Math.ceil(p.offset - now)) : fmtMS(p.offset); trend = nx ? '後' : '発';
+  } else if (n) {
+    const laps = lapsOf(p); const ll = laps[n - 1]; const since = now - p.passes[n - 1]; const prog = since / ll;
+    bar = Math.min(100, Math.round(prog * 100));
+    if (prog > 1.3) { cls += ' is-late'; lap = fmtMS(since); trend = '遅れ'; }
+    else {
+      if (prog >= 0.85) cls += ' is-soon';
+      lap = fmtLap(ll);
+      if (n >= 2) { const d = r1(ll - laps[n - 2]); trend = fmtSigned(d); tcls = d >= 0.5 ? 'up' : d <= -0.5 ? 'down' : ''; }
+    }
+  }
+  if (p.pid === r.lastPid && p.status === 'run') cls += ' is-last';
+  setIf(t, 'cls', cls, (v) => { t.el.className = v; });
+  setIf(t, 'laps', lapsH, (v) => { t.laps.innerHTML = v; });
+  setIf(t, 'lap', lap, (v) => { t.lap.textContent = v; });
+  setIf(t, 'trend', trend + '|' + tcls, () => { t.trend.textContent = trend; t.trend.className = 't-trend ' + tcls; });
+  setIf(t, 'bar', bar, (v) => { t.bar.style.width = v + '%'; });
+}
+function tick() {
+  const r = S.run; if (!r) return;
+  const now = nowSec();
+  $('#clock').textContent = fmtClock(now);
+  const waiting = r.players.filter((p) => p.status === 'run' && now < p.offset);
+  const nextOff = waiting.length ? Math.min.apply(null, waiting.map((p) => p.offset)) : null;
+  r.players.forEach((p) => updateTile(p, now, nextOff));
+  const act = r.players.filter((p) => p.status !== 'dnf' && now >= p.offset);
+  const counts = act.map((p) => p.passes.length);
+  $('#lead').textContent = counts.length ? '先頭 ' + Math.max.apply(null, counts) + '周 ・ 最後尾 ' + Math.min.apply(null, counts) + '周' : '';
+  $('#fin').textContent = '完走 ' + r.players.filter((p) => p.status === 'fin').length + ' / ' + r.players.length + '人';
+  const ns = $('#nextstart');
+  if (r.mode === 'handicap') {
+    r.players.forEach((p) => {
+      if (!p.offset) return;
+      const rem = p.offset - now; const k = String(p.offset);
+      if (rem > 0 && rem <= 3) { const s = Math.ceil(rem); if (sig[k] !== s) { sig[k] = s; beep(880, 0.12); } }
+      else if (rem <= 0 && rem > -1.5 && sig[k] !== 'go') { sig[k] = 'go'; beep(1320, 0.5); buzz(300); }
+    });
+    const justGone = r.players.filter((p) => p.offset > 0 && now >= p.offset && now - p.offset < 3);
+    if (justGone.length) {
+      ns.hidden = false; ns.className = 'nextstart go';
+      ns.innerHTML = '<div class="who2"><small>スタート！</small>' + justGone.map((p) => esc(p.no + ' ' + p.name)).join('・') + '</div><div class="cd">GO</div>';
+    } else if (nextOff != null) {
+      const grp = waiting.filter((p) => p.offset === nextOff);
+      ns.hidden = false; ns.className = 'nextstart';
+      ns.innerHTML = '<div class="who2"><small>次のスタート（あと' + (waiting.length) + '人）</small>' + grp.map((p) => esc(p.no + ' ' + p.name)).join('・') + '</div><div class="cd">' + fmtMS(Math.ceil(nextOff - now)) + '</div>';
+    } else { ns.hidden = true; }
+  } else { ns.hidden = true; }
+  if (guardMsg && Date.now() > guardMsg.until) { guardMsg = null; updateCall(); }
+}
+function rankOf(pid) {
+  const r = S.run;
+  const arr = r.players.filter((p) => p.status !== 'dnf' && p.passes.length).slice().sort((a, b) => (b.passes.length - a.passes.length) || (a.passes[a.passes.length - 1] - b.passes[b.passes.length - 1]));
+  return arr.findIndex((p) => p.pid === pid) + 1;
+}
+function updateCall() {
+  const r = S.run; if (!r) return;
+  const el = $('#call'); if (!el) return;
+  const p = r.players.find((x) => x.pid === r.lastPid);
+  let h;
+  if (!p || !p.passes.length) {
+    h = '<div class="no">–</div><div class="body"><div class="l1"><span class="nm">タイルを押して記録</span></div><div class="msg">' + (guardMsg ? esc(guardMsg.text) : '選手が通過したら、その番号を1回押します。長押しで修正。') + '</div></div>';
+  } else {
+    const laps = lapsOf(p); const n = laps.length; const ll = laps[n - 1];
+    let msg;
+    if (p.status === 'fin') msg = 'ゴール！ タイム ' + fmtMS(netOf(p));
+    else {
+      const d = n >= 2 ? r1(ll - laps[n - 2]) : null;
+      const pace = d == null ? '1周目' : d >= 1 ? '前周より' + d.toFixed(1) + '秒遅い' : d <= -1 ? '前周より' + (-d).toFixed(1) + '秒速い' : '前周とほぼ同じ';
+      msg = pace + ' ・ 残り' + (r.lapsTarget - n) + '周 ・ 現在' + rankOf(p.pid) + '位';
+    }
+    if (guardMsg) msg = guardMsg.text;
+    h = '<div class="no">' + esc(p.no) + '</div><div class="body"><div class="l1"><span class="nm">' + esc(dname(p)) + '</span><span class="lp">' + n + '周目</span><span class="tm">' + fmtLap(ll) + '</span></div><div class="msg">' + esc(msg) + '</div></div>';
+  }
+  el.innerHTML = h;
+  const last = r.undo.length ? r.players.find((x) => x.pid === r.undo[r.undo.length - 1]) : null;
+  $('#undoLabel').textContent = last ? '取り消し（' + last.no + ' ' + last.name + '）' : '直前のタップを取り消し';
+}
+function tap(pid, tMs) {
+  const r = S.run; if (!r) return;
+  const p = r.players.find((x) => x.pid === pid); if (!p || p.status !== 'run') return;
+  const now = r1((tMs - r.t0) / 1000);
+  if (now < p.offset) { guardMsg = { text: p.no + ' ' + dname(p) + ' はまだスタート前です', until: Date.now() + 2200 }; updateCall(); return; }
+  const lastT = p.passes.length ? p.passes[p.passes.length - 1] : p.offset;
+  if (now - lastT < r.guardSec) { guardMsg = { text: '二度押しを無視しました（' + p.no + ' ' + dname(p) + '）', until: Date.now() + 2200 }; buzz([20, 40, 20]); updateCall(); return; }
+  p.passes.push(now);
+  if (p.passes.length >= r.lapsTarget) p.status = 'fin';
+  r.undo.push(pid); if (r.undo.length > 200) r.undo.shift();
+  r.lastPid = pid; guardMsg = null;
+  saveRun(); buzz(15); tick(); updateCall();
+  if (r.players.every((x) => x.status !== 'run')) sheetEnd(true);
+}
+function undoTap() {
+  const r = S.run; if (!r || !r.undo.length) return;
+  const pid = r.undo.pop();
+  const p = r.players.find((x) => x.pid === pid);
+  if (p && p.passes.length) { p.passes.pop(); p.est = (p.est || []).filter((i) => i < p.passes.length); if (p.status === 'fin') p.status = 'run'; }
+  r.lastPid = r.undo.length ? r.undo[r.undo.length - 1] : null;
+  guardMsg = null; saveRun(); tick(); updateCall();
+}
+function sheetRunPlayer(pid) {
+  const r = S.run; const p = r.players.find((x) => x.pid === pid); if (!p) return;
+  const laps = lapsOf(p); const n = laps.length;
+  const recent = laps.map((v, i) => ({ v: v, i: i })).slice(-6).reverse();
+  openSheet('<div class="sheet-head"><div class="no">' + esc(p.no) + '</div><div class="ttl"><h2>' + esc(dname(p)) + '</h2><p class="hint">' + n + ' / ' + r.lapsTarget + '周' + (n ? '・平均ラップ ' + fmtLap(mean(laps)) + '秒' : '') + (p.status === 'dnf' ? '・棄権' : '') + '</p></div></div>' +
+    (n >= 2 ? lineChart(laps, '1周目', n + '周目', (v) => v.toFixed(1)) : '') +
+    (n ? '<div class="tbl" style="background:var(--bg)"><div class="tr head cols-lap"><span>周</span><span class="r">ラップ</span><span class="r">通算</span><span class="r">前周差</span></div>' + recent.map((x) => { const d = x.i ? r1(x.v - laps[x.i - 1]) : null; return '<div class="tr cols-lap" style="min-height:32px"><span class="n s">' + (x.i + 1) + ((p.est || []).indexOf(x.i) >= 0 ? '*' : '') + '</span><span class="r n">' + fmtLap(x.v) + '</span><span class="r n s">' + fmtMS(p.passes[x.i] - p.offset) + '</span><span class="r n ' + (d > 0.4 ? 'up' : d < -0.4 ? 'down' : 's') + '">' + (d == null ? '–' : fmtSigned(d)) + '</span></div>'; }).join('') + '</div>' : '') +
+    '<div class="label">記録の修正</div><div class="two"><button type="button" class="btn strong" data-act="minus1" data-pid="' + esc(pid) + '"' + (n ? '' : ' disabled') + '>−1周（押しすぎ）</button><button type="button" class="btn strong" data-act="plus1" data-pid="' + esc(pid) + '"' + (p.status === 'run' ? '' : ' disabled') + '>＋1周（押し忘れ）</button></div>' +
+    '<p class="hint">＋1周は、通過した時刻を前後のラップから推定して補います。</p>' +
+    '<div class="two"><button type="button" class="btn danger" data-act="dnf" data-pid="' + esc(pid) + '">' + (p.status === 'dnf' ? '棄権を取り消す' : '棄権にする') + '</button><button type="button" class="btn" data-act="close">閉じる</button></div>');
+}
+function minus1(pid) {
+  const r = S.run; const p = r.players.find((x) => x.pid === pid); if (!p || !p.passes.length) return;
+  p.passes.pop(); p.est = (p.est || []).filter((i) => i < p.passes.length);
+  if (p.status === 'fin') p.status = 'run';
+  const k = r.undo.lastIndexOf(pid); if (k >= 0) r.undo.splice(k, 1);
+  if (r.lastPid === pid && !p.passes.length) r.lastPid = r.undo.length ? r.undo[r.undo.length - 1] : null;
+  saveRun(); tick(); updateCall(); sheetRunPlayer(pid);
+}
+function plus1(pid) {
+  const r = S.run; const p = r.players.find((x) => x.pid === pid); if (!p || p.status !== 'run') return;
+  const now = r1(nowSec()); if (now < p.offset) return;
+  const laps = lapsOf(p); const n = laps.length; p.est = p.est || [];
+  if (n >= 2 && laps[n - 1] > 1.6 * laps[n - 2]) {
+    const mid = r1((p.passes[n - 2] + p.passes[n - 1]) / 2);
+    p.passes.splice(n - 1, 0, mid);
+    p.est = p.est.map((i) => (i >= n - 1 ? i + 1 : i)); p.est.push(n - 1);
+  } else {
+    const lastT = n ? p.passes[n - 1] : p.offset;
+    let t = n ? Math.min(now, r1(lastT + laps[n - 1])) : now;
+    if (t - lastT < 1) t = now;
+    p.passes.push(t); p.est.push(p.passes.length - 1);
+  }
+  if (p.passes.length >= r.lapsTarget) p.status = 'fin';
+  saveRun(); tick(); updateCall(); sheetRunPlayer(pid);
+  if (r.players.every((x) => x.status !== 'run')) sheetEnd(true);
+}
+function toggleDnf(pid) {
+  const r = S.run; const p = r.players.find((x) => x.pid === pid); if (!p) return;
+  if (p.status === 'dnf') p.status = p.passes.length >= r.lapsTarget ? 'fin' : 'run'; else p.status = 'dnf';
+  saveRun(); tick(); closeSheet();
+  if (r.players.every((x) => x.status !== 'run')) sheetEnd(true);
+}
+function sheetEnd(allDone) {
+  const r = S.run; if (!r) return;
+  const left = r.players.filter((p) => p.status === 'run').length;
+  openSheet('<div class="sheet-head"><div class="ttl"><h2>' + (allDone ? '全員が走り終えました' : 'ランを終了しますか？') + '</h2><p class="hint">' + (allDone ? '記録を保存して結果を表示します。直前のタップを直したいときは「記録に戻る」を押してください。' : 'まだ走っている選手が ' + left + '人 います。保存すると、その選手は「未完走」として残ります。') + '</p></div></div>' +
+    '<button type="button" class="primary" data-act="finish">保存して結果を見る</button>' +
+    '<div class="two"><button type="button" class="btn" data-act="close">記録に戻る</button><button type="button" class="btn danger" data-act="ask-discard">保存せずに破棄</button></div>');
+}
+function leaveRun() {
+  clearInterval(tickTimer); tickTimer = null;
+  try { if (wake) wake.release(); } catch (e) { /* ignore */ }
+  wake = null; S.run = null; saveRun(); closeSheet();
+}
+function finishRun() {
+  const r = S.run; if (!r) return;
+  const sess = { id: r.id, t0: r.t0, date: r.date, mode: r.mode, lapsTarget: r.lapsTarget, lapDistance: r.lapDistance, ratio: r.ratio, base: r.base,
+    players: r.players.map((p) => ({ pid: p.pid, no: p.no, name: p.name, offset: p.offset, passes: p.passes.slice(), est: (p.est || []).slice(), status: p.status === 'run' ? 'part' : p.status })) };
+  leaveRun(); storeSession(sess);
+  S.resultId = sess.id; S.resultSort = sess.mode === 'handicap' ? 'order' : 'rank';
+  go('results');
+}
+
+/* ---------- actions ---------- */
+const A = {
+  tab(b) { go(b.dataset.v); },
+  laps(b) { S.setup.laps = Math.max(1, Math.min(99, S.setup.laps + Number(b.dataset.v))); render(); },
+  mode(b) { S.setup.mode = b.dataset.v; render(); },
+  ratio(b) { S.setup.ratio = Number(b.dataset.v); render(); },
+  base(b) { S.setup.base = b.dataset.v; render(); },
+  round5() { S.setup.round5 = !S.setup.round5; render(); },
+  present(b) { const pid = b.dataset.pid; S.setup.present[pid] = S.setup.present[pid] === false; render(); },
+  start() { startRun(); },
+  count(b) {
+    const d = Number(b.dataset.v); const ps = S.roster.players;
+    if (d > 0) { if (ps.length >= 36) { toast('36人までです'); return; } const nums = ps.map((p) => Number(p.no)).filter((x) => !isNaN(x)); const no = (nums.length ? Math.max.apply(null, nums) : 0) + 1; ps.push({ pid: 'p' + Date.now().toString(36) + rid(), no: String(no), name: '' }); }
+    else { if (ps.length <= 1) return; ps.pop(); }
+    saveRosterLocal(); render();
+  },
+  rm(b) { if (S.roster.players.length <= 1) return; S.roster.players = S.roster.players.filter((p) => p.pid !== b.dataset.pid); saveRosterLocal(); render(); },
+  deflaps(b) { S.roster.lapsTarget = Math.max(1, Math.min(99, S.roster.lapsTarget + Number(b.dataset.v))); S.setup.laps = S.roster.lapsTarget; saveRosterLocal(); render(); },
+  guard(b) { S.roster.guardSec = Math.max(5, Math.min(60, S.roster.guardSec + Number(b.dataset.v))); saveRosterLocal(); render(); },
+  sound() { S.roster.sound = !S.roster.sound; saveRosterLocal(); render(); },
+  hist(b) { S.histMode = b.dataset.v; render(); },
+  open(b) { S.resultId = b.dataset.id; S.resultSort = S.sessions[b.dataset.id] && S.sessions[b.dataset.id].mode === 'handicap' ? 'order' : 'rank'; go('results'); },
+  sort(b) { S.resultSort = b.dataset.v; render(); },
+  detail(b) { const s = S.sessions[b.dataset.id]; if (s) sheetDetail(s, b.dataset.pid); },
+  'player-hist'(b) { sheetPlayerHist(b.dataset.pid); },
+  'next-hc'(b) { S.setup.mode = 'handicap'; S.setup.base = 'last'; S.setup.laps = Number(b.dataset.laps) || S.setup.laps; go('setup'); },
+  'csv-res'(b) { const s = S.sessions[b.dataset.id]; if (s) exportCsv('run_' + s.date + '_results.csv', csvResults([s])); },
+  'csv-lap'(b) { const s = S.sessions[b.dataset.id]; if (s) exportCsv('run_' + s.date + '_laps.csv', csvLaps([s])); },
+  'csv-all-res'() { exportCsv('run_all_results.csv', csvResults(sessionList().reverse())); },
+  'csv-all-lap'() { exportCsv('run_all_laps.csv', csvLaps(sessionList().reverse())); },
+  'copy-csv'() {
+    const ta = $('#csvText'); if (!ta) return;
+    const done = () => toast('コピーしました');
+    try { navigator.clipboard.writeText(ta.value).then(done, () => { ta.focus(); ta.select(); toast('選択しました。コピーしてください'); }); }
+    catch (e) { ta.focus(); ta.select(); toast('選択しました。コピーしてください'); }
+  },
+  'ask-del'(b) {
+    const s = S.sessions[b.dataset.id]; if (!s) return;
+    openSheet('<div class="sheet-head"><div class="ttl"><h2>この記録を削除しますか？</h2><p class="hint">' + jdateY(s.t0) + ' ' + hm(s.t0) + ' の記録を削除します。元に戻せません。</p></div></div><div class="two"><button type="button" class="btn" data-act="close">やめる</button><button type="button" class="btn strong danger" data-act="del" data-id="' + esc(s.id) + '">削除する</button></div>');
+  },
+  del(b) { removeSession(b.dataset.id); closeSheet(); toast('削除しました'); go('history'); },
+  close() { closeSheet(); },
+  undo() { undoTap(); },
+  'ask-end'() { sheetEnd(false); },
+  finish() { finishRun(); },
+  'ask-discard'() {
+    openSheet('<div class="sheet-head"><div class="ttl"><h2>記録を破棄しますか？</h2><p class="hint">このランの記録は保存されず、元に戻せません。</p></div></div><div class="two"><button type="button" class="btn" data-act="close">記録に戻る</button><button type="button" class="btn strong danger" data-act="discard">破棄する</button></div>');
+  },
+  discard() { leaveRun(); go('setup'); },
+  minus1(b) { minus1(b.dataset.pid); },
+  plus1(b) { plus1(b.dataset.pid); },
+  dnf(b) { toggleDnf(b.dataset.pid); }
+};
+document.addEventListener('click', (e) => {
+  if (e.target.id === 'backdrop') { closeSheet(); return; }
+  const b = e.target.closest('[data-act]'); if (!b || b.disabled) return;
+  const fn = A[b.dataset.act]; if (fn) fn(b, e);
+});
+document.addEventListener('input', (e) => {
+  const el = e.target; const f = el.dataset && el.dataset.f; if (!f) return;
+  if (f === 'dist') { const v = parseFloat(el.value); S.roster.lapDistance = v > 0 ? v : null; saveRosterLocal(); return; }
+  const p = S.roster.players.find((x) => x.pid === el.dataset.pid); if (!p) return;
+  if (f === 'no') p.no = el.value.trim().slice(0, 3) || p.no;
+  if (f === 'name') p.name = el.value.trim().slice(0, 12);
+  saveRosterLocal();
+});
+
+/* ---------- boot ---------- */
+if (S.run && S.run.players && S.run.t0) { buildRun(); requestWake(); } else { S.run = null; render(); }
+initCloud();
+})();
+</script>
+
+</body></html>
